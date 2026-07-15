@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Que Bocado - KitchenOS</title>
+    <style>
+        /* Variables y Reset */
+        :root {
+            --primary: #f97316;
+            --primary-hover: #ea580c;
+            --bg-dark: #1e293b;
+            --bg-light: #f8fafc;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-main);
+        }
+
+        /* Utilidades */
+        .hidden { display: none !important; }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+        .btn-outline {
+            background-color: transparent;
+            color: var(--white);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .btn-outline:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        .card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+        }
+
+        /* Navegación */
+        .navbar {
+            background: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+        .logo-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary);
+            border-radius: 50%;
+        }
+        .logo-sub {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.9rem;
+            text-transform: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary);
+        }
+        .nav-link.btn-primary {
+            color: var(--white);
+            border-radius: 4px;
+        }
+
+        /* Vista: Landing Page */
+        #view-landing {
+            background-color: var(--bg-dark);
+            color: var(--white);
+            min-height: calc(100vh - 70px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .landing-badge {
+            background: rgba(249, 115, 22, 0.2);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .landing-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+        .landing-title span {
+            color: var(--primary);
+            display: block;
+        }
+        .landing-subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+        }
+        .landing-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Vista: Dashboard */
+        #view-dashboard {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+        }
+        .date-sub {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card h3 {
+            font-size: 2rem;
+            margin: 0.5rem 0;
+        }
+        .stat-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .stat-card .trend {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+        .trend.orange { color: var(--primary); }
+        .trend.danger { color: var(--danger); }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .chart-placeholder {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+        .bar {
+            width: 40px;
+            background-color: var(--primary);
+            border-radius: 4px 4px 0 0;
+        }
+
+        /* Vista: Contacto */
+        #view-contacto {
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background-color: #f1f5f9;
+            font-size: 0.95rem;
+        }
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .info-card {
+            background-color: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .info-item {
+            margin-bottom: 1rem;
+        }
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        .info-item strong {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+        .info-item span {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .btn-whatsapp {
+            background-color: #10b981;
+            color: white;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        .btn-menu {
+            background-color: var(--primary);
+            color: white;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        .promo-box {
+            background-color: var(--bg-dark);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navegación Superior -->
+    <nav class="navbar">
+        <div class="logo-area">
+            <div class="logo-dot"></div>
+            QUE BOCADO 
+            <span class="logo-sub">/ KitchenOS</span>
+        </div>
+        <div class="nav-links">
+            <a class="nav-link" onclick="switchView('landing')">Inicio</a>
+            <a class="nav-link active" onclick="switchView('dashboard')">Dashboard</a>
+            <a class="nav-link" onclick="switchView('contacto')">Registrar</a>
+            <a class="nav-link" onclick="switchView('dashboard')">Registros</a>
+            <a class="nav-link" onclick="switchView('dashboard')">Seguridad</a>
+            <a class="nav-link btn-primary" onclick="switchView('contacto')">Contacto</a>
+        </div>
+    </nav>
+
+    <!-- VISTA 1: Landing Page (Referencia: image_78129a.jpg) -->
+    <main id="view-landing" class="hidden">
+        <div class="landing-badge">
+            KITCHENOS · V2.4
+        </div>
+        <h1 class="landing-title">
+            GESTIÓN INTELIGENTE
+            <span>PARA COCINAS INDUSTRIALES</span>
+        </h1>
+        <p class="landing-subtitle">
+            Controla inventario, recetas, producción, pedidos internos y calidad en una sola plataforma. Operación trazable, eficiente y segura.
+        </p>
+        <div class="landing-actions">
+            <button class="btn btn-primary" onclick="switchView('dashboard')">Iniciar &gt;</button>
+            <button class="btn btn-outline" onclick="switchView('contacto')">Ver propuesta</button>
+        </div>
+    </main>
+
+    <!-- VISTA 2: Dashboard (Referencia: image_78155d.png) -->
+    <main id="view-dashboard">
+        <div class="page-header">
+            <div class="date-sub">Martes, 01 Jul 2026 · Turno Mañana</div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1 class="page-title">Panel de Control</h1>
+                <button class="btn btn-primary" onclick="switchView('contacto')">+ Registrar</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="card stat-card">
+                <p>Insumos en stock</p>
+                <h3>142</h3>
+                <div class="trend orange">+8 hoy</div>
+            </div>
+            <div class="card stat-card">
+                <p>Lotes en producción</p>
+                <h3>7</h3>
+                <div class="trend orange">3 pendientes</div>
+            </div>
+            <div class="card stat-card">
+                <p>Pedidos activos</p>
+                <h3>23</h3>
+                <div class="trend orange">5 urgentes</div>
+            </div>
+            <div class="card stat-card">
+                <p>Alertas de calidad</p>
+                <h3>2</h3>
+                <div class="trend danger">Requieren acción</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>Producción semanal (unidades)</strong>
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Jun 23-29</span>
+                </div>
+                <div class="chart-placeholder">
+                    <div class="bar" style="height: 40%;"></div>
+                    <div class="bar" style="height: 60%;"></div>
+                    <div class="bar" style="height: 50%;"></div>
+                    <div class="bar" style="height: 80%;"></div>
+                    <div class="bar" style="height: 90%;"></div>
+                    <div class="bar" style="height: 30%;"></div>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 30px; margin-top: 10px; font-size: 0.8rem; color: var(--text-muted);">
+                    <span>Lun</span><span>Mar</span><span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span>
+                </div>
+            </div>
+            <div class="card">
+                <strong>Estado de pedidos</strong>
+                <div style="height: 150px; display: flex; align-items: center; justify-content: center; margin: 1rem 0;">
+                    <!-- Simulador de gráfico de dona circular con CSS -->
+                    <div style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--primary) 0% 68%, #334155 68% 90%, #e2e8f0 90% 100%); display: flex; align-items: center; justify-content: center;">
+                        <div style="width: 80px; height: 80px; background: white; border-radius: 50%;"></div>
+                    </div>
+                </div>
+                <div style="font-size: 0.85rem; line-height: 1.8;">
+                    <div style="display: flex; justify-content: space-between;"><span><span style="color: var(--primary);">●</span> Completados</span> <strong>68%</strong></div>
+                    <div style="display: flex; justify-content: space-between;"><span><span style="color: #334155;">●</span> En proceso</span> <strong>22%</strong></div>
+                    <div style="display: flex; justify-content: space-between;"><span><span style="color: #e2e8f0;">●</span> Pendientes</span> <strong>10%</strong></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- VISTA 3: Contacto (Referencia: image_7815db.jpg) -->
+    <main id="view-contacto" class="hidden">
+        <div class="page-header">
+            <div class="date-sub">09 / CONTACTO</div>
+            <h1 class="page-title">Solicitar Información</h1>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">¿Listo para digitalizar su cocina? Contáctenos.</p>
+        </div>
+
+        <div class="contact-grid">
+            <!-- Formulario -->
+            <div>
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>NOMBRE</label>
+                        <input type="text" class="form-control" placeholder="Su nombre">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>EMPRESA</label>
+                        <input type="text" class="form-control" placeholder="Nombre empresa">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>CORREO ELECTRÓNICO</label>
+                    <input type="email" class="form-control" placeholder="correo@empresa.com">
+                </div>
+                <div class="form-group">
+                    <label>MÓDULO DE INTERÉS</label>
+                    <input type="text" class="form-control" value="Todos los módulos">
+                </div>
+                <div class="form-group">
+                    <label>MENSAJE</label>
+                    <textarea class="form-control" placeholder="Cuéntenos sobre su operación y necesidades..."></textarea>
+                </div>
+                <button class="btn btn-primary" style="width: 100%;">Solicitar información</button>
+            </div>
+
+            <!-- Información de Contacto -->
+            <div>
+                <div class="info-card">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Que Bocado S.A.S.</h3>
+                    <div class="info-item">
+                        <strong>Dirección</strong>
+                        <span>Calle 40 4-93, Ibagué, Tolima</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Teléfono</strong>
+                        <span>+57 302 861 6752</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Correo</strong>
+                        <span>info@quebocado.com.co</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Horario</strong>
+                        <span>Lun-Vie 07:00-18:00</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-whatsapp">Escríbenos por WhatsApp<br><small>+57 302 861 6752 · Respuesta inmediata</small></button>
+                <button class="btn btn-menu">Ver Menú Pasabocas<br><small>Precios desde $1.200 · Pedidos desde 20 und</small></button>
+
+                <div class="promo-box">
+                    <strong style="color: var(--primary); display: block; margin-bottom: 0.5rem;">⭐ Implementación en 30 días</strong>
+                    <p style="font-size: 0.85rem; line-height: 1.5; color: #cbd5e1;">KitchenOS se adapta a su operación con capacitación incluida, soporte técnico 24/7 y migración de datos sin interrupciones.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Lógica de Navegación Simple -->
+    <script>
+        function switchView(viewId) {
+            // Ocultar todas las vistas
+            document.getElementById('view-landing').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-contacto').classList.add('hidden');
+
+            // Quitar clase activa de todos los links
+            const links = document.querySelectorAll('.nav-links .nav-link');
+            links.forEach(link => link.classList.remove('active'));
+
+            // Mostrar la vista seleccionada
+            document.getElementById('view-' + viewId).classList.remove('hidden');
+
+            // Marcar el link correspondiente como activo (lógica simple visual)
+            if(viewId === 'dashboard') {
+                links[1].classList.add('active');
+            } else if(viewId === 'contacto') {
+                links[5].classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
